@@ -232,13 +232,27 @@ class OrchestratorAgentCapstone:
             max_iterations = Config.MAX_REVIEW_ITERATIONS
             
             while not approved and iteration <= max_iterations:
+                review_start = datetime.now()
+                
                 review_result = await self.review_agent.review(
                     trip_input,
                     current_itinerary,
                     iteration
                 )
                 
+                review_time = (datetime.now() - review_start).total_seconds()
                 self.metrics["review_iterations"] = iteration
+                
+                # Log review completion
+                self.observability_plugin.metrics["agents_executed"].append({
+                    "agent": "review_agent",
+                    "status": "completed",
+                    "timestamp": datetime.now().isoformat(),
+                    "duration": f"{review_time:.2f}s",
+                    "summary": f"Reviewed itinerary - {'Approved' if review_result.approved else 'Needs revision'}",
+                    "iteration": iteration,
+                    "quality_score": review_result.quality_score
+                })
                 
                 if review_result.approved:
                     approved = True

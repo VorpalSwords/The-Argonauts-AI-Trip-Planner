@@ -1,0 +1,215 @@
+╭──────────────────────────────────────────────────────────────╮
+│                                                              │
+│ ╔═══════════════════════════════════════════════════════════ │
+│ ╗                                                            │
+│ ║                                                            │
+│ ║                                                            │
+│ ║         🌍  AI TRIP PLANNER - CAPSTONE PROJECT  🌍         │
+│ ║                                                            │
+│ ║                                                            │
+│ ║                                                            │
+│ ║              Google ADK Multi-Agent System                 │
+│ ║                                                            │
+│ ║                                                            │
+│ ║                                                            │
+│ ╚═══════════════════════════════════════════════════════════ │
+│ ╝                                                            │
+│                                                              │
+│ Capstone Features:                                           │
+│   ✅ Multi-Agent System (Research → Plan → Review)           │
+│   ✅ Sequential Agent Workflow                               │
+│   ✅ Loop Agent (Iterative Refinement)                       │
+│   ✅ Built-in ADK Tools (google_search)                      │
+│   ✅ Sessions & Memory Management                            │
+│   ✅ Observability (Metrics, Logging, Tracing)               │
+│   ✅ Agent Evaluation Framework                              │
+│                                                              │
+╰──────────────────────────────────────────────────────────────╯
+
+╔════════════════════════════════════════════╗
+║      Trip Planner Configuration            ║
+╚════════════════════════════════════════════╝
+
+Model: gemini-2.5-flash-lite
+Temperature: 0.7
+Max Review Iterations: 3
+
+Features:
+  • Google Search: ✅ Enabled
+  • Code Execution: ✅ Enabled
+  • Observability: ✅ Enabled
+  • Evaluation: ✅ Enabled
+
+API Keys:
+  • Google AI: ✅ Set
+  • OpenWeather: ✅ Set
+
+
+📂 Loading trip request from: examples/sample_input.yaml
+
+🚀 Initializing Multi-Agent System...
+📁 Session storage: .sessions
+╭─────────── 🌍 ADK Trip Planner ───────────╮
+│ 🚀 Trip Planner Orchestrator Initialized! │
+│                                           │
+│ ✅ Research Agent (google_search)         │
+│ ✅ Planning Agent (code_execution)        │
+│ ✅ Review Agent (LoopAgent)               │
+│ ✅ Max Review Iterations: 3               │
+│ ✅ Observability Tracking Enabled         │
+│ ✅ Cross-Session Memory Enabled           │
+╰───────────────────────────────────────────╯
+
+Starting Trip Planning Workflow...
+
+🔍 Observability plugin initialized for session: 
+session_20251201_170638
+✅ Research Agent using google_search tool for model: 
+gemini-2.5-flash-lite
+✅ Research Agent initialized with google_search tool!
+⚠ Planning agent using knowledge-based approach (no tools) for: 
+gemini-2.5-flash-lite
+✅ Planning Agent initialized (knowledge-based)!
+✅ Review Agent initialized (max 3 iterations)!
+╭────────────────────── 📋 Trip Request ───────────────────────╮
+│ Planning Trip to Tokyo, Japan                                │
+│                                                              │
+│ 📅 Dates: 2025-04-01 to 2025-04-10                           │
+│ ⏱️  Duration: 10 days                                         │
+│ 💰 Budget: mid-range                                         │
+│ 🎯 Interests: culture, food, temples, cherry blossoms,       │
+│ shopping, nightlife                                          │
+│ 🚶 Pace: moderate                                            │
+│ 📊 Session: session_20251201_170638                          │
+╰──────────────────────────────────────────────────────────────╯
+
+═══ STEP 1: RESEARCH ═══
+
+🔍 Researching: Tokyo, Japan
+📂 Parsing 1 reference file(s)...
+✅ Reference files parsed successfully
+Agent is researching... (this may take 30-60 seconds)
+▶️  research_agent: started
+⚠️  No tools were called (model used knowledge only)
+✅ Research complete!
+  📁 File Parser: success (file)
+  🔍 google_search: success (knowledge-based)
+  🌤️  Weather API: success (knowledge-based)
+✅ Research completed in 15.6s
+
+═══ STEP 2: PLANNING ═══
+
+📅 Planning 10-day itinerary...
+Agent is creating itinerary... (this may take 30-90 seconds)
+▶️  planning_agent: started
+✅ Itinerary created!
+  💰 calculate_trip_budget: success (custom)
+  🗺️  maps_helper: success (custom)
+✅ Planning completed in 39.8s
+
+═══ STEP 3: REVIEW & REFINEMENT ═══
+
+📋 Reviewing itinerary (iteration 1)...
+Agent is reviewing... (this may take 20-30 seconds)
+▶️  review_loop: started
+▶️  review_agent: started
+⚠️  Needs revision (Score: 6.0/10)
+Issues: 2
+
+⚠️  Iteration 1: Needs improvement
+Issues: Timing/scheduling concerns, Budget alignment issues
+🔄 Refining itinerary...
+
+📅 Planning 10-day itinerary...
+Agent is creating itinerary... (this may take 30-90 seconds)
+▶️  planning_agent: started (iteration 2)
+✅ Itinerary created!
+✅ Refinement completed in 36.7s
+
+📋 Reviewing itinerary (iteration 2)...
+Agent is reviewing... (this may take 20-30 seconds)
+▶️  review_loop: started (iteration 2)
+▶️  review_agent: started (iteration 2)
+⚠️  Needs revision (Score: 6.0/10)
+Issues: 2
+
+⚠️  Iteration 2: Needs improvement
+Issues: Timing/scheduling concerns, Budget alignment issues
+🔄 Refining itinerary...
+
+📅 Planning 10-day itinerary...
+Agent is creating itinerary... (this may take 30-90 seconds)
+▶️  planning_agent: started (iteration 3)
+✅ Itinerary created!
+✅ Refinement completed in 37.3s
+
+📋 Reviewing itinerary (iteration 3)...
+Agent is reviewing... (this may take 20-30 seconds)
+▶️  review_loop: started (iteration 3)
+▶️  review_agent: started (iteration 3)
+✅ Itinerary APPROVED! (Score: 6.0/10)
+
+✅ Itinerary APPROVED after 3 iteration(s)!
+Quality Score: 6.0/10
+
+
+
+📊 Metrics saved to: logs/metrics_20251201_170916.json
+
+💾 Session saved: .sessions/session_20251201_170638.json
+╭──────────── 📊 Metrics ────────────╮
+│ Performance Metrics                │
+│                                    │
+│ ⏱️  Research Time: 15.6s            │
+│ ⏱️  Planning Time: 39.8s            │
+│ 🔄 Review Iterations: 3            │
+│ ⏱️  Total Time: 158.1s              │
+│ ✅ Success: True                   │
+│                                    │
+│ Tool Usage:                        │
+│ 🔍 Google Search: Used in research │
+│ 🧮 Code Execution: Enabled         │
+│ 💾 Sessions: Active                │
+│ 🧠 Memory: Active                  │
+│                                    │
+╰────────────────────────────────────╯
+╭───────────── ✅ Complete ──────────────╮
+│ Trip Itinerary Ready!                  │
+│                                        │
+│ 📍 Destination: Tokyo, Japan           │
+│ 📅 Duration: 10 days                   │
+│ 💰 Estimated Cost: $3400.00            │
+│                                        │
+│ 📋 Daily Plans: 10 days planned        │
+│ 🎒 Packing List: 4 items               │
+│ 📝 Important Notes: 3 notes            │
+│                                        │
+│ Full itinerary exported to output file │
+│                                        │
+╰────────────────────────────────────────╯
+
+✅ Itinerary saved to: output/itinerary_20251201_170916.md
+
+📊 Running Evaluation...
+📊 Evaluation saved to: output/evaluation_20251201_170916.json
+           📊 Evaluation Results            
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Metric            ┃ Score   ┃ Rating     ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Performance       │ 7.78/10 │ ⭐⭐⭐     │
+│ Quality           │ 6.62/10 │ ⭐⭐⭐     │
+│ Feature Coverage  │ 5.71/10 │ ⭐⭐       │
+│ User Satisfaction │ 10.0/10 │ ⭐⭐⭐⭐⭐ │
+└───────────────────┴─────────┴────────────┘
+
+Overall Score: 7.35/10 ⭐⭐⭐
+╭────────────────────── ✅ Success ──────────────────────╮
+│ 🎉 TRIP PLANNING COMPLETE! 🎉                          │
+│                                                        │
+│ Your 10-day itinerary for Tokyo, Japan is ready!       │
+│ Estimated cost: $3400.00                               │
+│                                                        │
+│ 📄 Full itinerary: output/itinerary_20251201_170916.md │
+│ 📊 Evaluation: output/evaluation_20251201_170916.json  │
+│                                                        │
+╰────────────────────────────────────────────────────────╯

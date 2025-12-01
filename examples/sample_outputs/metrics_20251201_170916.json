@@ -1,0 +1,135 @@
+{
+  "session_id": "session_20251201_170638",
+  "start_time": "2025-12-01T17:06:38.117503",
+  "agents_executed": [
+    {
+      "agent": "research_agent",
+      "status": "started",
+      "timestamp": "2025-12-01T17:06:38.568112"
+    },
+    {
+      "agent": "research_agent",
+      "status": "completed",
+      "timestamp": "2025-12-01T17:06:53.724024",
+      "duration": "15.60s",
+      "summary": "Researched destination using AI knowledge"
+    },
+    {
+      "agent": "planning_agent",
+      "status": "started",
+      "timestamp": "2025-12-01T17:06:53.725710"
+    },
+    {
+      "agent": "planning_agent",
+      "status": "completed",
+      "timestamp": "2025-12-01T17:07:33.509152",
+      "duration": "39.78s",
+      "summary": "Created detailed day-by-day itinerary"
+    },
+    {
+      "agent": "review_loop",
+      "status": "started",
+      "timestamp": "2025-12-01T17:07:33.510592"
+    },
+    {
+      "agent": "review_agent",
+      "status": "completed",
+      "timestamp": "2025-12-01T17:07:33.510738"
+    },
+    {
+      "agent": "planning_agent",
+      "status": "started",
+      "timestamp": "2025-12-01T17:07:37.841227",
+      "iteration": 2
+    },
+    {
+      "agent": "planning_agent",
+      "status": "completed",
+      "timestamp": "2025-12-01T17:08:14.556834",
+      "duration": "36.72s",
+      "summary": "Refined itinerary based on feedback",
+      "iteration": 2
+    },
+    {
+      "agent": "review_loop",
+      "status": "started",
+      "timestamp": "2025-12-01T17:08:14.558043",
+      "iteration": 2
+    },
+    {
+      "agent": "review_agent",
+      "status": "completed",
+      "timestamp": "2025-12-01T17:08:14.558336",
+      "iteration": 2
+    },
+    {
+      "agent": "planning_agent",
+      "status": "started",
+      "timestamp": "2025-12-01T17:08:28.073483",
+      "iteration": 3
+    },
+    {
+      "agent": "planning_agent",
+      "status": "completed",
+      "timestamp": "2025-12-01T17:09:05.412108",
+      "duration": "37.34s",
+      "summary": "Refined itinerary based on feedback",
+      "iteration": 3
+    },
+    {
+      "agent": "review_loop",
+      "status": "started",
+      "timestamp": "2025-12-01T17:09:05.413452",
+      "iteration": 3
+    },
+    {
+      "agent": "review_agent",
+      "status": "completed",
+      "timestamp": "2025-12-01T17:09:05.413741",
+      "iteration": 3
+    }
+  ],
+  "tool_calls": [
+    {
+      "tool": "File Parser",
+      "type": "file",
+      "status": "success",
+      "timestamp": "2025-12-01T17:06:53.724034",
+      "details": "Parsed 1 reference file(s)"
+    },
+    {
+      "tool": "google_search (knowledge)",
+      "type": "built-in",
+      "status": "success",
+      "timestamp": "2025-12-01T17:06:53.724203",
+      "details": "Using LLM knowledge to research Tokyo, Japan"
+    },
+    {
+      "tool": "Weather API (knowledge)",
+      "type": "api",
+      "status": "success",
+      "timestamp": "2025-12-01T17:06:53.724350",
+      "details": "Weather forecast for Tokyo, Japan using AI knowledge"
+    },
+    {
+      "tool": "calculate_trip_budget",
+      "type": "custom",
+      "status": "success",
+      "timestamp": "2025-12-01T17:07:33.509160",
+      "details": "Calculated budget for 10-day trip"
+    },
+    {
+      "tool": "maps_helper",
+      "type": "custom",
+      "status": "success",
+      "timestamp": "2025-12-01T17:07:33.509362",
+      "details": "Generated Google Maps URLs for activities"
+    }
+  ],
+  "errors": [],
+  "warnings": [],
+  "performance": {
+    "total_planning_time": "158.13s"
+  },
+  "end_time": "2025-12-01T17:09:16.250389"
+}

@@ -1,0 +1,38 @@
+{
+  "timestamp": "2025-12-01T17:09:16.252784",
+  "trip_destination": "Tokyo, Japan",
+  "scores": {
+    "performance": 7.78,
+    "quality": 6.62,
+    "feature_coverage": 5.71,
+    "user_satisfaction": 10.0
+  },
+  "details": {
+    "performance": {
+      "research_time": 15.604692,
+      "planning_time": 39.784248,
+      "total_time": 158.132715,
+      "review_iterations": 3
+    },
+    "quality": {
+      "num_day_plans": 10,
+      "budget": 3400.0,
+      "packing_list_items": 4,
+      "important_notes": 3
+    },
+    "features_used": [
+      "Sequential Agents",
+      "Loop Agent",
+      "Built-in google_search",
+      "Sessions & Memory",
+      "Observability",
+      "Code Execution"
+    ]
+  },
+  "recommendations": [
+    "Improve itinerary quality by adding more detailed activities and practical information.",
+    "Utilize more ADK features like code_execution, memory persistence, and observability."
+  ],
+  "overall_score": 7.35,
+  "grade": "B (Good)"
+}

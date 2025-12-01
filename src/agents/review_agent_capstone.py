@@ -266,8 +266,14 @@ Current date: {datetime.now().strftime("%Y-%m-%d")}
             session_id=session_id,
             new_message=content
         ):
+            # Track any tool calls (though review agent typically doesn't use tools)
+            if event.get_function_calls():
+                for fc in event.get_function_calls():
+                    console.print(f"  [dim]🔧 Review agent using tool: {fc.name}[/dim]")
+            
             if event.is_final_response():
-                response_text = event.content.parts[0].text
+                if event.content and event.content.parts:
+                    response_text = event.content.parts[0].text
                 break
         
         # Parse response into ReviewResult
