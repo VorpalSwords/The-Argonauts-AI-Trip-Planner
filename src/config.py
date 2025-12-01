@@ -1,30 +1,59 @@
 """
-Configuration for the Trip Planner Agent System.
-Handles environment variables and system settings.
+Configuration settings for the trip planner agent system.
 """
-
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load environment variables from .env file
 load_dotenv()
 
-
 class Config:
-    """Configuration for the trip planner agent system"""
+    """Central configuration for the trip planner system"""
     
-    # ===== REQUIRED =====
-    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+    # ===== API KEYS =====
+    GOOGLE_AI_API_KEY = os.getenv("GOOGLE_AI_API_KEY")
     
-    # ===== OPTIONAL (System works without these) =====
     OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")  # Optional - for real-time weather
     ENABLE_GOOGLE_MAPS_LINKS = os.getenv("ENABLE_GOOGLE_MAPS_LINKS", "true").lower() == "true"
     
     # ===== MODEL CONFIGURATION =====
-    # Using stable model that SUPPORTS FUNCTION CALLING (tools)
-    # Note: gemini-2.5-flash-lite does NOT support function calling!
     MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.5-flash-lite")
     TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7"))
+    
+    # ===== MODEL TIER DETECTION =====
+    @classmethod
+    def get_model_tier(cls) -> str:
+        """
+        Determine model tier based on model name.
+        
+        Returns:
+            'lite' for gemini-2.5-flash-lite
+            'pro' for gemini-2.5-flash, gemini-1.5-pro, gemini-2.0-flash-exp, etc.
+        """
+        model_lower = cls.MODEL_NAME.lower()
+        if "lite" in model_lower:
+            return "lite"
+        else:
+            return "pro"
+    
+    @classmethod
+    def get_max_iterations(cls) -> int:
+        """Get max iterations based on model tier"""
+        tier = cls.get_model_tier()
+        if tier == "lite":
+            return 3  # Lite models don't benefit from many iterations
+        else:
+            return 5  # Pro models can handle more iterations
+    
+    @classmethod
+    def get_approval_threshold(cls) -> float:
+        """Get approval threshold based on model tier"""
+        tier = cls.get_model_tier()
+        if tier == "lite":
+            return 7.0  # Lite models ceiling is ~7-7.5
+        else:
+            return 8.0  # Pro models can reach 8.5+
     
     # Retry configuration for handling rate limits
     RETRY_ATTEMPTS = int(os.getenv("RETRY_ATTEMPTS", "5"))
@@ -32,11 +61,15 @@ class Config:
     RETRY_INITIAL_DELAY = int(os.getenv("RETRY_INITIAL_DELAY", "1"))
     
     # ===== AGENT SETTINGS =====
-    MAX_REVIEW_ITERATIONS = int(os.getenv("MAX_REVIEW_ITERATIONS", "5"))  # Increased for better quality (threshold is 8/10)
+    # Now dynamically determined by model tier
+    # For backward compatibility, set these as class attributes
+    # They will return the default tier values (can be overridden by methods)
+    MAX_REVIEW_ITERATIONS = 3  # Default for lite, use get_max_iterations() for dynamic
+    APPROVAL_THRESHOLD = 7.0  # Default for lite, use get_approval_threshold() for dynamic
     
     # ===== FEATURE FLAGS =====
     ENABLE_GOOGLE_SEARCH = os.getenv("ENABLE_GOOGLE_SEARCH", "true").lower() == "true"
-    ENABLE_CODE_EXECUTION = os.getenv("ENABLE_CODE_EXECUTION", "true").lower() == "true"  # Changed to true by default
+    ENABLE_CODE_EXECUTION = os.getenv("ENABLE_CODE_EXECUTION", "true").lower() == "true"
     ENABLE_OBSERVABILITY = os.getenv("ENABLE_OBSERVABILITY", "true").lower() == "true"
     ENABLE_EVALUATION = os.getenv("ENABLE_EVALUATION", "true").lower() == "true"
     
@@ -47,39 +80,28 @@ class Config:
     
     @classmethod
     def validate(cls):
-        """Validate required configuration"""
-        if not cls.GOOGLE_API_KEY:
-            raise ValueError(
-                "❌ GOOGLE_API_KEY not found!\n\n"
-                "Please set it in .env file:\n"
-                "1. Copy .env.example to .env\n"
-                "2. Add your API key: GOOGLE_API_KEY=your_key_here\n"
-                "3. Get a free key at: https://aistudio.google.com/app/apikey\n"
-            )
+        """Validate configuration"""
+        if not cls.GOOGLE_AI_API_KEY:
+            raise ValueError("GOOGLE_AI_API_KEY is required in .env file")
+        
+        return True
     
     @classmethod
-    def print_config(cls):
-        """Print current configuration"""
-        print(f"""
-╔════════════════════════════════════════════╗
-║      Trip Planner Configuration            ║
-╚════════════════════════════════════════════╝
+    def print_config_info(cls):
+        """Print configuration information"""
+        tier = cls.get_model_tier()
+        print(f"[CONFIG] Model: {cls.MODEL_NAME}")
+        print(f"[CONFIG] Tier: {tier}")
+        print(f"[CONFIG] Max Iterations: {cls.get_max_iterations()}")
+        print(f"[CONFIG] Approval Threshold: {cls.get_approval_threshold()}")
+    
+    @classmethod
+    def get_agent_type(cls) -> str:
+        """
+        Get the agent implementation to use based on model tier.
+        
+        Returns:
+            'lite' or 'pro'
+        """
+        return cls.get_model_tier()
 
-Model: {cls.MODEL_NAME}
-Temperature: {cls.TEMPERATURE}
-Max Review Iterations: {cls.MAX_REVIEW_ITERATIONS}
-
-Features:
-  • Google Search: {'✅ Enabled' if cls.ENABLE_GOOGLE_SEARCH else '❌ Disabled'}
-  • Code Execution: {'✅ Enabled' if cls.ENABLE_CODE_EXECUTION else '❌ Disabled'}
-  • Observability: {'✅ Enabled' if cls.ENABLE_OBSERVABILITY else '❌ Disabled'}
-  • Evaluation: {'✅ Enabled' if cls.ENABLE_EVALUATION else '❌ Disabled'}
-
-API Keys:
-  • Google AI: {'✅ Set' if cls.GOOGLE_API_KEY else '❌ Missing'}
-  • OpenWeather: {'✅ Set' if cls.OPENWEATHER_API_KEY else '⚠️  Optional (using fallback)'}
-""")
-
-
-# Validate on import
-Config.validate()

@@ -18,7 +18,7 @@ from datetime import datetime
 console = Console()
 
 
-class ReviewAgentCapstone:
+class ReviewAgentPro:
     """
     Review Agent using ADK's LoopAgent pattern.
     
@@ -360,9 +360,9 @@ Provide structured feedback with clear YES/NO on approval.
         # 8+/10 = APPROVE
         # 7/10 and below = NEEDS REVISION
         
-        # Require score >= 8 for approval (NO auto-approve on final iteration!)
-        # If we hit max iterations without reaching 8, that's OK - at least we tried!
-        approved = quality_score >= 8.0
+        # Approval based strictly on score, no exceptions
+        threshold = Config.get_approval_threshold()
+        approved = quality_score >= threshold
         
         # Extract issues (simple heuristic)
         issues = []

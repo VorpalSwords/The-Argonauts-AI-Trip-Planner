@@ -125,9 +125,16 @@ class WeatherAPI:
         """Process API forecast data into usable format."""
         # Ensure dates are date objects
         if isinstance(start_date, str):
-            start_date = date.fromisoformat(start_date)
+            try:
+                start_date = date.fromisoformat(start_date)
+            except ValueError:
+                # Invalid date format, will be caught by caller
+                raise
         if isinstance(end_date, str):
-            end_date = date.fromisoformat(end_date)
+            try:
+                end_date = date.fromisoformat(end_date)
+            except ValueError:
+                raise
         
         forecasts_by_date = {}
         

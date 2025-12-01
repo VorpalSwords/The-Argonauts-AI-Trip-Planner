@@ -22,9 +22,6 @@ from google.adk.tools.agent_tool import AgentTool
 from google.genai import types
 from src.config import Config
 from src.models.trip_models import TripInput, TripItinerary
-from src.agents.research_agent_capstone import ResearchAgentCapstone
-from src.agents.planning_agent_capstone import PlanningAgentCapstone
-from src.agents.review_agent_capstone import ReviewAgentCapstone
 from src.utils.observability_plugin import ObservabilityPlugin
 from src.utils.session_manager import PersistentSessionManager
 from rich.console import Console
@@ -35,6 +32,25 @@ from datetime import datetime
 import json
 
 console = Console()
+
+
+def load_agents_for_model():
+    """
+    Dynamically load appropriate agents based on model tier.
+    
+    Returns:
+        Tuple of (ResearchAgent, PlanningAgent, ReviewAgent) classes
+    """
+    model_tier = Config.get_model_tier()
+
+    if model_tier == "lite":
+        console.print("[cyan]🔧 Loading LITE agents (optimized for gemini-2.5-flash-lite)[/cyan]")
+        from src.agents.lite_model import ResearchAgentLite, PlanningAgentLite, ReviewAgentLite
+        return ResearchAgentLite, PlanningAgentLite, ReviewAgentLite
+    else:
+        console.print("[cyan]🔧 Loading PRO agents (optimized for advanced models)[/cyan]")
+        from src.agents.pro_model import ResearchAgentPro, PlanningAgentPro, ReviewAgentPro
+        return ResearchAgentPro, PlanningAgentPro, ReviewAgentPro
 
 
 class OrchestratorAgentCapstone:
@@ -111,10 +127,11 @@ class OrchestratorAgentCapstone:
         self.observability_plugin = ObservabilityPlugin(session_id)
         start_time = datetime.now()
         
-        # Initialize sub-agents WITH plugin
-        self.research_agent = ResearchAgentCapstone(self.observability_plugin)
-        self.planning_agent = PlanningAgentCapstone(self.observability_plugin)
-        self.review_agent = ReviewAgentCapstone(self.observability_plugin)
+        # Initialize sub-agents WITH plugin (model-aware)
+        ResearchAgentClass, PlanningAgentClass, ReviewAgentClass = load_agents_for_model()
+        self.research_agent = ResearchAgentClass(self.observability_plugin)
+        self.planning_agent = PlanningAgentClass(self.observability_plugin)
+        self.review_agent = ReviewAgentClass(self.observability_plugin)
         
         # Note: Plugin tracks via callbacks automatically - no manual timers needed
         
@@ -229,7 +246,7 @@ class OrchestratorAgentCapstone:
             
             approved = False
             iteration = 1
-            max_iterations = Config.MAX_REVIEW_ITERATIONS
+            max_iterations = Config.get_max_iterations()
             
             while not approved and iteration <= max_iterations:
                 review_start = datetime.now()

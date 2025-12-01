@@ -96,9 +96,23 @@ class WeatherTool:
         """
         # Ensure dates are date objects, not strings
         if isinstance(start_date, str):
-            start_date = date.fromisoformat(start_date)
+            try:
+                start_date = date.fromisoformat(start_date)
+            except ValueError as e:
+                return {
+                    "error": f"Invalid start date format: {start_date}",
+                    "summary": "Unable to get weather due to invalid date",
+                    "source": "Error"
+                }
         if isinstance(end_date, str):
-            end_date = date.fromisoformat(end_date)
+            try:
+                end_date = date.fromisoformat(end_date)
+            except ValueError as e:
+                return {
+                    "error": f"Invalid end date format: {end_date}",
+                    "summary": "Unable to get weather due to invalid date",
+                    "source": "Error"
+                }
         
         month = start_date.month
         seasonal_info = self.get_seasonal_info(destination, month)

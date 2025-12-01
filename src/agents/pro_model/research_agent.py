@@ -23,7 +23,7 @@ from src.tools.maps_helper import MapsHelper
 console = Console()
 
 
-class ResearchAgentCapstone:
+class ResearchAgentPro:
     """
     Research Agent using ADK's built-in google_search tool.
     

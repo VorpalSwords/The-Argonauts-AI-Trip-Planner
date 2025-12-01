@@ -11,11 +11,12 @@ __version__ = "2.0.0-capstone"
 __author__ = "Liad C."
 __course__ = "Google AI Agents Intensive - November 2025"
 
-# Capstone agents
+# Main orchestrator (auto-loads lite/pro agents based on model)
 from .agents.orchestrator_capstone import OrchestratorAgentCapstone as OrchestratorAgent
-from .agents.research_agent_capstone import ResearchAgentCapstone as ResearchAgent
-from .agents.planning_agent_capstone import PlanningAgentCapstone as PlanningAgent
-from .agents.review_agent_capstone import ReviewAgentCapstone as ReviewAgent
+from .agents.exploration_agent import ExplorationAgent
+
+# Note: Individual agents (Research, Planning, Review) are dynamically loaded
+# by the orchestrator based on model tier. See agents/README.md for details.
 
 # Data models
 from .models import TripInput, TripPreferences, TripItinerary, TripDates, DayPlan, ResearchData, ReviewResult
@@ -30,9 +31,7 @@ from .evaluation import TripPlannerEvaluator, evaluate_agent
 __all__ = [
     # Agents
     'OrchestratorAgent',
-    'ResearchAgent',
-    'PlanningAgent',
-    'ReviewAgent',
+    'ExplorationAgent',
     # Models
     'TripInput',
     'TripPreferences',

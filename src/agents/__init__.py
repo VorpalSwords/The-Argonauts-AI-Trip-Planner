@@ -1,24 +1,21 @@
-"""Agent implementations for Trip Planner - Capstone ADK Framework"""
+"""
+Agents module - Model-aware multi-agent system
 
-# Capstone agents (current implementation)
-from .research_agent_capstone import ResearchAgentCapstone
-from .planning_agent_capstone import PlanningAgentCapstone
-from .review_agent_capstone import ReviewAgentCapstone
+This module provides the orchestrator and model-specific agent implementations.
+"""
+
+# Main orchestrator (auto-loads appropriate agents based on model)
 from .orchestrator_capstone import OrchestratorAgentCapstone
 
-# Convenience aliases
-ResearchAgent = ResearchAgentCapstone
-PlanningAgent = PlanningAgentCapstone
-ReviewAgent = ReviewAgentCapstone
-OrchestratorAgent = OrchestratorAgentCapstone
+# Exploration agent
+from .exploration_agent import ExplorationAgent
+
+# Note: Individual agents (Research, Planning, Review) are NOT imported here
+# They are dynamically loaded by the orchestrator based on model tier:
+# - lite_agents/ for gemini-2.5-flash-lite
+# - pro_agents/ for advanced models
 
 __all__ = [
-    'ResearchAgentCapstone',
-    'PlanningAgentCapstone',
-    'ReviewAgentCapstone',
     'OrchestratorAgentCapstone',
-    'ResearchAgent',
-    'PlanningAgent',
-    'ReviewAgent',
-    'OrchestratorAgent'
+    'ExplorationAgent'
 ]

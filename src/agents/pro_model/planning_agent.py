@@ -33,7 +33,7 @@ console = Console()
 # Using knowledge-based approach instead
 
 
-class PlanningAgentCapstone:
+class PlanningAgentPro:
     """
     Planning Agent using ADK best practices.
     

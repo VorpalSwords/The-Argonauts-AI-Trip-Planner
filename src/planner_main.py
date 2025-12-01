@@ -57,7 +57,7 @@ def display_welcome():
   ✅ Agent Evaluation Framework
 """
     console.print(Panel(banner, border_style="green", expand=False))
-    Config.print_config()
+    Config.print_config_info()
 
 
 def load_trip_input(yaml_file: Path) -> TripInput:
