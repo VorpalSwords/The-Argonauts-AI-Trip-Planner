@@ -28,6 +28,7 @@ preferences:
   # Dietary restrictions (optional)
   dietary_restrictions:
     - vegetarian
+    - no spicy food
   
   # Special requests (optional)
   special_requests: "I'd like to see Mount Fuji and experience a traditional tea ceremony"
@@ -35,8 +36,4 @@ preferences:
 # Reference files (OPTIONAL - for learning from friends' trips!)
 # Supported formats: .txt, .pdf, .xlsx, .docx, google maps links, wanderlog links
 reference_files:
-  # Example: Uncomment and add your files
-  # - "reference/friend_tokyo_trip.pdf"
-  # - "reference/tokyo_itinerary.xlsx"
-  # - "reference/google_maps_tokyo.txt"
-  # - "reference/wanderlog_japan.txt"
+  - "examples/reference/example_tokyo_trip.txt"

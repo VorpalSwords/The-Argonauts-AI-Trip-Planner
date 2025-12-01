@@ -120,10 +120,10 @@ class ItineraryFormatter:
                 if day.theme:
                     md += f" - _{day.theme}_"
                 md += f"\n\n**📍 Location**: {day.location}\n\n"
-            
-            # Activities
-            if day.activities:
-                md += "#### Activities\n\n"
+                
+                # Activities
+                if day.morning_activities or day.afternoon_activities or day.evening_activities:
+                    md += "#### Activities\n\n"
                 for activity in day.activities:
                     md += f"- **{activity.time}** | {activity.activity}\n"
                     md += f"  - 📍 Location: {activity.location}\n"
@@ -135,29 +135,29 @@ class ItineraryFormatter:
                         md += f"  - 📝 Notes: {activity.notes}\n"
                     md += "\n"
             
-            # Meals
-            if day.meals:
-                md += "#### 🍽️ Meals\n\n"
-                meal_emojis = {
-                    "breakfast": "🥐",
-                    "lunch": "🍱", 
-                    "dinner": "🍜"
-                }
-                for meal_type, restaurant in day.meals.items():
-                    emoji = meal_emojis.get(meal_type.lower(), "🍴")
-                    md += f"- {emoji} **{meal_type.title()}**: {restaurant}\n"
-                md += "\n"
-            
-            # Accommodation
-            if day.accommodation:
-                md += f"#### 🏨 Accommodation\n\n"
-                md += f"{day.accommodation}\n\n"
-            
-            # Transportation
-            if day.transportation_notes:
-                md += f"#### 🚇 Transportation\n\n"
-                md += f"{day.transportation_notes}\n\n"
-            
+                # Meals
+                if day.meals:
+                    md += "#### 🍽️ Meals\n\n"
+                    meal_emojis = {
+                        "breakfast": "🥐",
+                        "lunch": "🍱", 
+                        "dinner": "🍜"
+                    }
+                    for meal_type, restaurant in day.meals.items():
+                        emoji = meal_emojis.get(meal_type.lower(), "🍴")
+                        md += f"- {emoji} **{meal_type.title()}**: {restaurant}\n"
+                    md += "\n"
+                
+                # Accommodation
+                if day.accommodation:
+                    md += f"#### 🏨 Accommodation\n\n"
+                    md += f"{day.accommodation}\n\n"
+                
+                # Transportation
+                if day.transportation_notes:
+                    md += f"#### 🚇 Transportation\n\n"
+                    md += f"{day.transportation_notes}\n\n"
+                
                 # Daily cost estimate
                 if day.estimated_cost:
                     md += f"**💰 Estimated Daily Cost**: {day.estimated_cost}\n\n"

@@ -1,6 +1,12 @@
 """
-Orchestrator Agent - Capstone Version
-Uses ADK's SequentialAgent for coordinated multi-agent workflow!
+Orchestrator Agent - The Argonauts Captain
+
+Coordinates the multi-agent workflow:
+1. Research Agent → Gathers destination intelligence
+2. Planning Agent → Creates optimized daily itineraries  
+3. Review Agent → Quality checks and iterative refinement
+
+Uses ADK's SequentialAgent for coordinated execution.
 """
 
 from google.adk.agents import Agent, SequentialAgent

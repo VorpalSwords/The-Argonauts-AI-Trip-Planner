@@ -64,10 +64,16 @@ def load_trip_input(yaml_file: Path) -> TripInput:
     """Load trip input from YAML file"""
     console.print(f"\n[cyan]📂 Loading trip request from: {yaml_file}[/cyan]")
     
+    from src.utils.error_handler import validate_trip_input
+    
     with open(yaml_file, 'r') as f:
         data = yaml.safe_load(f)
     
     trip_input = TripInput(**data)
+    
+    # Validate the input
+    validate_trip_input(trip_input)
+    
     return trip_input
 
 
@@ -156,9 +162,9 @@ def _display_evaluation_summary(eval_results: dict):
 def main():
     """CLI entry point"""
     if len(sys.argv) < 2:
-        console.print("[yellow]Usage: python -m src.main_capstone <input.yaml> [output_dir][/yellow]")
+        console.print("[yellow]Usage: python -m src.planner_main <input.yaml> [output_dir][/yellow]")
         console.print("\n[cyan]Example:[/cyan]")
-        console.print("  python -m src.main_capstone examples/sample_input.yaml output/")
+        console.print("  python -m src.planner_main examples/sample_input.yaml output/")
         console.print("\n[cyan]Tip:[/cyan]")
         console.print("  See examples/sample_input.yaml for input format")
         return 1

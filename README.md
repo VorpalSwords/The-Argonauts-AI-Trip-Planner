@@ -35,11 +35,16 @@ The Review Agent runs up to 3 refinement cycles to ensure quality meets minimum 
 
 ## Setup
 
-**1. Create a virtual environment (recommended):**
+**1. Create a virtual environment (required):**
 
 ```bash
+# Create the virtual environment
 python3 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Activate it
+source .venv/bin/activate  # On macOS/Linux
+# OR
+.venv\Scripts\activate  # On Windows
 ```
 
 **2. Install dependencies:**
@@ -51,6 +56,20 @@ pip install -r requirements.txt
 **3. Get your Google API key:**
 
 Visit https://aistudio.google.com/app/api-keys and create a free API key.
+
+**Virtual Environment Setup:**
+```bash
+# Create virtual environment
+python3 -m venv .venv
+
+# Activate it
+source .venv/bin/activate  # macOS/Linux
+# OR
+.venv\Scripts\activate  # Windows
+
+# Verify activation
+which python3  # Should show path inside .venv/
+```
 
 **4. Create a .env file in the project root:**
 
@@ -92,10 +111,10 @@ Without the weather API, the system uses seasonal patterns from the AI model's k
 **5. Run the planner:**
 
 ```bash
-python3 -m src.main_capstone examples/sample_input.yaml
+python3 -m src.planner_main examples/sample_input.yaml
 ```
 
-The process takes 3-5 minutes as the agents research, plan, and refine the itinerary.
+The process takes 3-6 minutes as the agents research, plan, and refine the itinerary. The first run may take slightly longer as the model initializes.
 
 **6. Check your results:**
 
@@ -202,8 +221,9 @@ src/
 ├── tools/               # File parser, weather estimator, formatter
 ├── utils/               # Model helper with retry logic
 ├── evaluation/          # Quality metrics
-├── config.py           # Configuration management
-└── main_capstone.py    # Entry point
+├── config.py            # Configuration management
+├── planner_main.py      # Entry point for planner
+└── explore_main.py      # Entry point for explore tool
 ```
 
 ## Evaluation scores

@@ -94,6 +94,12 @@ class WeatherTool:
         Returns:
             Dictionary with weather information and recommendations
         """
+        # Ensure dates are date objects, not strings
+        if isinstance(start_date, str):
+            start_date = date.fromisoformat(start_date)
+        if isinstance(end_date, str):
+            end_date = date.fromisoformat(end_date)
+        
         month = start_date.month
         seasonal_info = self.get_seasonal_info(destination, month)
         

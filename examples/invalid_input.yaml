@@ -1,0 +1,4 @@
+destination: "Tokyo, Japan"
+dates:
+  start_date: "2025-04-10"
+  end_date: "2025-04-01"  # End before start

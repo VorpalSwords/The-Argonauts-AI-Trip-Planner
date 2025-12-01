@@ -241,7 +241,7 @@ src/
 ├── utils/        # Model helper with retry logic
 ├── evaluation/   # Quality metrics
 ├── config.py     # Configuration management
-└── main_capstone.py  # Entry point
+└── planner_main.py  # Entry point
 ```
 
 The codebase is organized with about 35 files total - focused and maintainable.
@@ -282,7 +282,7 @@ GOOGLE_API_KEY=your_key_here
 OPENWEATHER_API_KEY=your_weather_key  # optional
 
 # Run the planner
-python3 -m src.main_capstone examples/sample_input.yaml
+python3 -m src.planner_main examples/sample_input.yaml
 ```
 
 Processing takes 3-5 minutes. Results are saved to `output/itinerary_*.md`.

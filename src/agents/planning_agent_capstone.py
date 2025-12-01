@@ -1,6 +1,15 @@
 """
-Planning Agent - Capstone Version
-Creates optimized daily itineraries with code execution support.
+Planning Agent - The Argonauts Navigator
+
+Creates optimized daily itineraries featuring:
+- Geographic clustering (minimize transit time)
+- Multiple restaurant options per meal (2-3 choices)
+- Dietary accommodation (vegetarian, no spicy, etc.)
+- Transit pass recommendations
+- Realistic timing with rest periods
+- Budget calculations
+
+Handles multi-city trips with strategic sequencing.
 """
 
 from google.adk.agents import Agent
@@ -11,6 +20,7 @@ from google.genai import types
 from src.config import Config
 from src.models.trip_models import TripInput, ResearchData, TripItinerary, DayPlan
 from src.utils.model_helper import create_gemini_model
+from src.tools.transport_helper import TransportHelper
 from rich.console import Console
 import asyncio
 from datetime import datetime, timedelta
@@ -283,7 +293,25 @@ Current date: {datetime.now().strftime("%Y-%m-%d")}
         return self._parse_itinerary_response(response_text, trip_input, research_data)
     
     def _create_planning_query(self, trip_input: TripInput, research_data: ResearchData) -> str:
-        """Create detailed planning query"""
+        """Create detailed planning query with transport guide"""
+        
+        # Get transportation recommendations
+        cities = [trip_input.destination] + (trip_input.additional_destinations or [])
+        if len(cities) > 1 and "japan" in trip_input.destination.lower():
+            transport_context = TransportHelper.get_japan_transit_overview(cities)
+        else:
+            transport_context = TransportHelper.format_transit_guide(
+                trip_input.destination,
+                trip_input.dates.duration_days
+            )
+        
+        # Handle dietary restrictions
+        dietary_str = ""
+        if trip_input.preferences.dietary_restrictions:
+            dietary_str = f"\n**CRITICAL - Dietary Restrictions**: {', '.join(trip_input.preferences.dietary_restrictions)}"
+            dietary_str += "\n- EVERY meal suggestion must accommodate these restrictions"
+            dietary_str += "\n- Provide multiple options per meal with clear dietary info"
+        
         query = f"""Create a detailed {trip_input.dates.duration_days}-day itinerary for {trip_input.destination}.
 
 **Trip Details:**
@@ -293,20 +321,35 @@ Current date: {datetime.now().strftime("%Y-%m-%d")}
 - Budget: {trip_input.preferences.budget_level}
 - Pace: {trip_input.preferences.pace_preference}
 - Interests: {', '.join(trip_input.preferences.interests) if trip_input.preferences.interests else 'general'}
+{dietary_str}
 
 **Research Summary:**
-{research_data.research_summary[:1000]}...
+{research_data.research_summary[:1500]}...
+
+{transport_context}
+
+**MEAL PLANNING REQUIREMENTS** (CRITICAL!):
+For EVERY meal, provide 2-3 specific restaurant options:
+- Include restaurant name, estimated cost, cuisine type
+- Indicate which options accommodate dietary restrictions
+- Verify operating hours match meal time
+- Show price range for each option
+- Mix of traditional and modern options
+
+Example format:
+**Lunch Options (12:30-1:30 PM):**
+1. Ichiran Ramen (¥1,500) - Non-spicy broths available, vegetarian broth option
+2. Afuri Ramen (¥1,300) - Light yuzu ramen, clear vegetarian options on menu
+3. Ain Soph Journey (¥1,800) - Fully vegan restaurant, no spicy dishes
 
 **Requirements:**
 1. Create detailed plan for each of the {trip_input.dates.duration_days} days
 2. Balance {trip_input.preferences.pace_preference} pace with {', '.join(trip_input.preferences.interests)} interests
 3. Include specific times, locations, and costs
-4. Provide meal recommendations
-5. Include transport details
+4. Provide 2-3 restaurant options PER MEAL with dietary info
+5. Include transit pass recommendations from transportation guide above
 6. Add pro tips and alternatives
 7. Calculate daily budgets
-
-Use calculate_trip_budget tool to validate budget feasibility.
 
 Provide structured day-by-day plan with morning/afternoon/evening activities.
 """

@@ -9,8 +9,11 @@ pyyaml==6.0.3
 # CLI and output
 rich==14.2.0
 
-# HTTP requests (for optional weather API only)
+# Real API integrations
 requests
+
+# Testing
+pytest==7.4.3
 
 # File parsing (optional - for reference files)
 PyPDF2==3.0.1              # PDF parsing

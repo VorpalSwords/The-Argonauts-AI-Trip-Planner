@@ -123,6 +123,11 @@ class WeatherAPI:
         end_date: date
     ) -> Dict[str, Any]:
         """Process API forecast data into usable format."""
+        # Ensure dates are date objects
+        if isinstance(start_date, str):
+            start_date = date.fromisoformat(start_date)
+        if isinstance(end_date, str):
+            end_date = date.fromisoformat(end_date)
         
         forecasts_by_date = {}
         
