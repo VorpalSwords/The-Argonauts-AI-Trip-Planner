@@ -1,0 +1,22 @@
+# Core ADK - ONLY THIS!
+google-adk==1.19.0
+
+# Data handling
+pydantic==2.12.5
+python-dotenv==1.2.1
+pyyaml==6.0.3
+
+# CLI and output
+rich==14.2.0
+
+# HTTP requests (for optional weather API only)
+requests
+
+# File parsing (optional - for reference files)
+PyPDF2==3.0.1              # PDF parsing
+openpyxl==3.1.2            # Excel parsing
+python-docx==1.1.0         # Word document parsing
+
+# Optional: For database session persistence
+# sqlalchemy==2.0.23
+# alembic==1.13.1

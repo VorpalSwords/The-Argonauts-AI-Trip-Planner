@@ -1,0 +1,42 @@
+# Trip Planning Input - Capstone Format
+# This file defines your trip parameters
+
+destination: "Tokyo, Japan"
+
+# Trip dates (YYYY-MM-DD format)
+dates:
+  start_date: "2025-04-01"
+  end_date: "2025-04-10"
+
+# Your preferences
+preferences:
+  # Budget level: budget, mid-range, luxury
+  budget_level: "mid-range"
+  
+  # Travel pace: relaxed, moderate, fast-paced
+  pace_preference: "moderate"
+  
+  # Your interests (customize these!)
+  interests:
+    - culture
+    - food
+    - temples
+    - cherry blossoms
+    - shopping
+    - nightlife
+  
+  # Dietary restrictions (optional)
+  dietary_restrictions:
+    - vegetarian
+  
+  # Special requests (optional)
+  special_requests: "I'd like to see Mount Fuji and experience a traditional tea ceremony"
+
+# Reference files (OPTIONAL - for learning from friends' trips!)
+# Supported formats: .txt, .pdf, .xlsx, .docx, google maps links, wanderlog links
+reference_files:
+  # Example: Uncomment and add your files
+  # - "reference/friend_tokyo_trip.pdf"
+  # - "reference/tokyo_itinerary.xlsx"
+  # - "reference/google_maps_tokyo.txt"
+  # - "reference/wanderlog_japan.txt"
