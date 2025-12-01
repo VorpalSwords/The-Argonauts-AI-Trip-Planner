@@ -51,12 +51,28 @@ Your mission: Evaluate trip itineraries and provide constructive feedback.
 
 **STRICT REVIEW CRITERIA (MUST BE CRITICAL!):**
 
-1. **🗺️ GEOGRAPHIC LOGIC** (Critical - Instant Fail if Poor)
-   - ❌ REJECT if: Activities ping-pong across city
-   - ❌ REJECT if: >45min transit between activities in same day
-   - ❌ REJECT if: Doesn't consider neighborhoods/districts
-   - ✅ APPROVE if: Logical flow, clustered by area, efficient routing
-   - SCORE HARSHLY: 9+ only if routes make perfect sense
+1. **🗺️ GEOGRAPHIC LOGIC** (Critical - Most Common Failure!)
+
+**HOW TO REVIEW:** Mentally map each day's route
+- Calculate travel times between locations
+- Check for backtracking patterns
+- Verify neighborhood clustering
+
+**RED FLAGS (Auto-reject if found):**
+- ❌ BACKTRACKING: Location A → B → back to A
+- ❌ PING-PONGING: East → West → East in one day
+- ❌ SCATTERED: Not grouped by neighborhood
+
+**WHAT GOOD LOOKS LIKE:**
+- ✅ CLUSTERED: Full day in one area (e.g., Shibuya/Harajuku)
+- ✅ PROGRESSIVE: Asakusa morning → Ueno afternoon → Yanaka evening (all nearby!)
+
+**GIVE SPECIFIC FEEDBACK:**
+If routing bad: "Day 3: Asakusa 9am → Shibuya 12pm → Asakusa 4pm is BACKTRACKING
+SOLUTION: Keep Asakusa activities 9am-2pm, THEN move to Shibuya 3pm-9pm"
+
+**SCORING:**
+- If major backtracking found: Max score 6/10 even if other aspects good!
 
 2. **⏰ REALISTIC TIMING** (Critical - Most Plans Fail Here)
    - ❌ REJECT if: Too many activities (>5 major sites/day)
@@ -104,15 +120,15 @@ Your mission: Evaluate trip itineraries and provide constructive feedback.
 
 **SCORING RUBRIC (BE STRICT!):**
 
-**10/10** - EXCEPTIONAL: Perfect geographic flow, realistic timing, personalized, detailed, creative
-**9/10** - EXCELLENT: Minor tweaks needed, very good overall
-**8/10** - VERY GOOD: Solid plan, few issues to address
-**7/10** - GOOD: Decent but needs improvement (REJECT - needs revision)
-**6/10** - ACCEPTABLE: Multiple issues (REJECT - major revision)
-**5/10** - MEDIOCRE: Significant problems (REJECT - rethink approach)
-**<5/10** - POOR: Start over
+**10/10** - EXCEPTIONAL: Perfect geographic flow, realistic timing, personalized, detailed, creative (APPROVE ✅)
+**9/10** - EXCELLENT: Minor tweaks needed, very good overall (APPROVE ✅)
+**8/10** - VERY GOOD: Solid plan, few issues to address (APPROVE ✅) ← APPROVAL THRESHOLD
+**7/10** - GOOD: Decent but needs improvement (REJECT ❌ - needs revision)
+**6/10** - ACCEPTABLE: Multiple issues (REJECT ❌ - major revision)
+**5/10** - MEDIOCRE: Significant problems (REJECT ❌ - rethink approach)
+**<5/10** - POOR: Start over (REJECT ❌)
 
-**MINIMUM APPROVAL THRESHOLD: 8/10**
+**CRITICAL: MUST SCORE 8/10 OR HIGHER TO APPROVE!**
 
 **REVIEW PROCESS (Check EVERY point!):**
 
@@ -183,12 +199,20 @@ Your mission: Evaluate trip itineraries and provide constructive feedback.
 
 **REMEMBER:** You are the quality gatekeeper. It's better to reject and refine than approve mediocre work.
 
-Score honestly:
-- Most first drafts: 6-7/10 (need revision)
-- After fixes: 8-9/10 (approve)
-- Perfect plans: 10/10 (rare!)
+Score honestly (remember: 8+ to approve, 7 or below to reject):
+- Most first drafts: 6-7/10 (REJECT ❌ - need revision)
+- After fixes: 8-9/10 (APPROVE ✅)
+- Perfect plans: 10/10 (APPROVE ✅ - rare!)
+
+**IMPORTANT - If this is a refinement iteration:**
+- Check if the planner ACTUALLY FIXED the issues you raised last time
+- If the SAME problems persist → give a LOWER score to signal lack of improvement
+- If problems were fixed but new ones appeared → fair score based on current state
+- Only improve score if you see genuine progress on the issues
 
 Don't be generous with scores - protect the user from bad itineraries!
+Score 7 or below = MUST REJECT for revision.
+If seeing NO improvement after feedback → score HARSHLY!
 
 Be constructive and specific. If revision needed, explain exactly what to improve.
 
@@ -325,19 +349,20 @@ Provide structured feedback with clear YES/NO on approval.
     def _parse_review_response(self, response_text: str, iteration: int) -> ReviewResult:
         """Parse agent response into structured ReviewResult"""
         
-        # Simple heuristic: look for approval keywords
         response_lower = response_text.lower()
-        approved = (
-            "approve" in response_lower or 
-            "approved" in response_lower or
-            "looks good" in response_lower or
-            iteration >= Config.MAX_REVIEW_ITERATIONS  # Auto-approve on final iteration
-        )
         
-        # Extract quality score (look for patterns like "score: 8" or "8/10")
+        # Extract quality score FIRST (look for patterns like "score: 8" or "8/10")
         import re
         score_match = re.search(r'(\d+)(?:/10| out of 10)', response_lower)
-        quality_score = int(score_match.group(1)) if score_match else (8 if approved else 6)
+        quality_score = float(score_match.group(1)) if score_match else 7.0
+        
+        # STRICT approval logic based on score (per instructions):
+        # 8+/10 = APPROVE
+        # 7/10 and below = NEEDS REVISION
+        
+        # Require score >= 8 for approval (NO auto-approve on final iteration!)
+        # If we hit max iterations without reaching 8, that's OK - at least we tried!
+        approved = quality_score >= 8.0
         
         # Extract issues (simple heuristic)
         issues = []

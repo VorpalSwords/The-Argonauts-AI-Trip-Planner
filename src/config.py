@@ -32,7 +32,7 @@ class Config:
     RETRY_INITIAL_DELAY = int(os.getenv("RETRY_INITIAL_DELAY", "1"))
     
     # ===== AGENT SETTINGS =====
-    MAX_REVIEW_ITERATIONS = int(os.getenv("MAX_REVIEW_ITERATIONS", "3"))
+    MAX_REVIEW_ITERATIONS = int(os.getenv("MAX_REVIEW_ITERATIONS", "5"))  # Increased for better quality (threshold is 8/10)
     
     # ===== FEATURE FLAGS =====
     ENABLE_GOOGLE_SEARCH = os.getenv("ENABLE_GOOGLE_SEARCH", "true").lower() == "true"

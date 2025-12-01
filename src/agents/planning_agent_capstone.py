@@ -24,6 +24,7 @@ from src.tools.transport_helper import TransportHelper
 from rich.console import Console
 import asyncio
 from datetime import datetime, timedelta
+from typing import Optional
 import json
 
 console = Console()
@@ -66,6 +67,13 @@ class PlanningAgentCapstone:
             instruction=f"""You are a WORLD-CLASS trip planner who creates geographically intelligent, realistic, and deeply thoughtful itineraries.
 
 Your mission: Create itineraries that are NOT just lists of places, but SMART, EFFICIENT, ENJOYABLE travel experiences.
+
+**🎯 QUALITY TARGETS - Your itinerary MUST achieve 8+/10 to be approved:**
+1. Geographic efficiency (no backtracking!)
+2. Realistic timing (not overpacked)
+3. Precise budgeting (actual costs)
+4. Deep personalization (matches user perfectly)
+5. Actionable specificity (exact places, times, costs)
 
 **MULTI-CITY TRIPS (CRITICAL!):**
 If the trip involves multiple cities (e.g., Tokyo → Kyoto → Osaka):
@@ -250,7 +258,12 @@ Current date: {datetime.now().strftime("%Y-%m-%d")}
         
         console.print("[green]✅ Planning Agent initialized (knowledge-based)![/green]")
     
-    async def plan(self, trip_input: TripInput, research_data: ResearchData) -> TripItinerary:
+    async def plan(
+        self,
+        trip_input: TripInput,
+        research_data: ResearchData,
+        review_feedback: Optional[str] = None
+    ) -> TripItinerary:
         """
         Create detailed daily itinerary.
         
@@ -271,8 +284,8 @@ Current date: {datetime.now().strftime("%Y-%m-%d")}
         )
         session_id = session.id
         
-        # Create planning query
-        query = self._create_planning_query(trip_input, research_data)
+        # Create planning query (with review feedback if this is a refinement)
+        query = self._create_planning_query(trip_input, research_data, review_feedback)
         
         # Run agent
         content = types.Content(
@@ -299,8 +312,13 @@ Current date: {datetime.now().strftime("%Y-%m-%d")}
         # Parse response into TripItinerary
         return self._parse_itinerary_response(response_text, trip_input, research_data)
     
-    def _create_planning_query(self, trip_input: TripInput, research_data: ResearchData) -> str:
-        """Create detailed planning query with transport guide"""
+    def _create_planning_query(
+        self,
+        trip_input: TripInput,
+        research_data: ResearchData,
+        review_feedback: Optional[str] = None
+    ) -> str:
+        """Create detailed planning query with transport guide and review feedback"""
         
         # Get transportation recommendations
         cities = [trip_input.destination] + (trip_input.additional_destinations or [])
@@ -319,7 +337,50 @@ Current date: {datetime.now().strftime("%Y-%m-%d")}
             dietary_str += "\n- EVERY meal suggestion must accommodate these restrictions"
             dietary_str += "\n- Provide multiple options per meal with clear dietary info"
         
+        # Add review feedback section if this is a refinement
+        feedback_section = ""
+        if review_feedback:
+            feedback_section = f"""
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔴 CRITICAL - YOUR PREVIOUS ITINERARY WAS REJECTED! 🔴
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**REVIEW FEEDBACK:**
+{review_feedback[:1500]}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  THIS IS A REFINEMENT - YOU MUST FIX THE ISSUES ABOVE! ⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**MANDATORY FIXES (or you will be rejected again!):**
+
+1. **Geographic Routing**: Read the feedback carefully!
+   - If it says "Day X has backtracking", redesign that day's flow
+   - Cluster activities by neighborhood
+   - Minimize cross-city travel
+
+2. **Timing**: If it says "unrealistic", it means:
+   - Reduce number of activities per day
+   - Add more buffer time between locations
+   - Consider actual travel times (Tokyo subway = 30-60 min between neighborhoods!)
+
+3. **Budget**: If calculations are wrong:
+   - Show ACTUAL prices for restaurants/activities
+   - Don't just say "budget-friendly" - give ¥ amounts
+   - Make sure daily total makes sense
+
+4. **Personalization**: Address user preferences explicitly
+   - User interests: {', '.join(trip_input.preferences.interests)}
+   - Pace: {trip_input.preferences.pace_preference}
+   - Budget: {trip_input.preferences.budget_level}
+
+**STUDY THE FEEDBACK ABOVE AND FIX EACH ISSUE SPECIFICALLY!**
+Don't just regenerate - actually ADDRESS the problems mentioned!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"""
+        
         query = f"""Create a detailed {trip_input.dates.duration_days}-day itinerary for {trip_input.destination}.
+{feedback_section}
 
 **Trip Details:**
 - Destination: {trip_input.destination}

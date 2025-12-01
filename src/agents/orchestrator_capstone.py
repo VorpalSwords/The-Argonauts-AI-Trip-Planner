@@ -263,10 +263,16 @@ class OrchestratorAgentCapstone:
                     console.print(f"[yellow]Issues: {', '.join(review_result.issues_found)}[/yellow]")
                     
                     if iteration < max_iterations:
-                        console.print(f"[yellow]🔄 Refining itinerary...[/yellow]")
+                        console.print(f"[yellow]🔄 Refining itinerary based on review feedback...[/yellow]")
+                        console.print(f"[dim]Review feedback: {review_result.review_summary[:200]}...[/dim]")
+                        
                         # Re-plan with feedback
                         replan_start = datetime.now()
-                        current_itinerary = await self.planning_agent.plan(trip_input, research_data)
+                        current_itinerary = await self.planning_agent.plan(
+                            trip_input, 
+                            research_data,
+                            review_feedback=review_result.review_summary  # ✅ Pass feedback!
+                        )
                         replan_time = (datetime.now() - replan_start).total_seconds()
                         
                         # Manual log "completed" for refinement iteration
