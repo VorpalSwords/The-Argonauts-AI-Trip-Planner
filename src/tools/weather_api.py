@@ -153,11 +153,14 @@ class WeatherAPI:
         # Calculate daily summaries
         daily_summaries = []
         for dt, forecasts in sorted(forecasts_by_date.items()):
+            if not forecasts:  # Skip if no forecast data for this date
+                continue
+            
             temps = [f["temp"] for f in forecasts]
-            avg_temp = sum(temps) / len(temps)
-            min_temp = min(f["temp_min"] for f in forecasts)
-            max_temp = max(f["temp_max"] for f in forecasts)
-            rain_prob = max(f["rain_probability"] for f in forecasts)
+            avg_temp = sum(temps) / len(temps) if temps else 0
+            min_temp = min(f["temp_min"] for f in forecasts) if forecasts else 0
+            max_temp = max(f["temp_max"] for f in forecasts) if forecasts else 0
+            rain_prob = max(f["rain_probability"] for f in forecasts) if forecasts else 0
             
             # Most common weather condition
             conditions = [f["weather"] for f in forecasts]
@@ -176,7 +179,7 @@ class WeatherAPI:
         
         # Calculate average for summary
         all_temps = [float(d["avg_temp"].replace("°C", "")) for d in daily_summaries]
-        avg_temp_overall = sum(all_temps) / len(all_temps) if all_temps else 0
+        avg_temp_overall = sum(all_temps) / len(all_temps) if all_temps and len(all_temps) > 0 else 0
         
         return {
             "destination": destination,
@@ -191,9 +194,14 @@ class WeatherAPI:
         """Generate packing and planning recommendations from forecast."""
         recommendations = []
         
+        # Check if we have any data
+        if not daily_summaries or len(daily_summaries) == 0:
+            recommendations.append("Check local forecast closer to travel date")
+            return recommendations
+        
         # Temperature-based
         temps = [float(d["avg_temp"].replace("°C", "")) for d in daily_summaries]
-        avg_temp = sum(temps) / len(temps)
+        avg_temp = sum(temps) / len(temps) if temps else 15  # Default to mild temp
         
         if avg_temp < 10:
             recommendations.append("Pack warm layers, jacket, and gloves")

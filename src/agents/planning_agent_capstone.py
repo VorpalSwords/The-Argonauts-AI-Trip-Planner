@@ -45,10 +45,11 @@ class PlanningAgentCapstone:
     - Structured output (Pydantic models)
     """
     
-    def __init__(self):
+    def __init__(self, observability_plugin=None):
         self.app_name = "trip_planner_planning"
         self.session_service = InMemorySessionService()
         self.memory_service = InMemoryMemoryService()
+        self.observability_plugin = observability_plugin  # Store plugin
         
         # For gemini-2.5-flash-lite, use knowledge-based approach (no tools)
         model_name = Config.MODEL_NAME.lower()
@@ -234,11 +235,17 @@ Current date: {datetime.now().strftime("%Y-%m-%d")}
         )
         
         # Create runner
+        # Register observability plugin if provided
+        plugins = []
+        if self.observability_plugin:
+            plugins.append(self.observability_plugin)
+        
         self.runner = Runner(
             agent=self.agent,
             app_name=self.app_name,
             session_service=self.session_service,
-            memory_service=self.memory_service
+            memory_service=self.memory_service,
+            plugins=plugins  # ✅ Plugin registered - auto-tracks all agent/tool calls!
         )
         
         console.print("[green]✅ Planning Agent initialized (knowledge-based)![/green]")
@@ -273,7 +280,7 @@ Current date: {datetime.now().strftime("%Y-%m-%d")}
             parts=[types.Part(text=query)]
         )
         
-        console.print("[yellow]Agent is creating itinerary... (this may take 30-60 seconds)[/yellow]")
+        console.print("[yellow]Agent is creating itinerary... (this may take 30-90 seconds)[/yellow]")
         
         # Collect response
         response_text = ""

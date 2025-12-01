@@ -52,9 +52,10 @@ examples/japan_trips/
 .coverage
 htmlcov/
 
-# Logs
+# Logs and Sessions
 *.log
 logs/
+.sessions/
 
 # Temporary files
 *.tmp

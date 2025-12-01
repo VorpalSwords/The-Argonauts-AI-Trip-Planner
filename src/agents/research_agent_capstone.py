@@ -36,36 +36,31 @@ class ResearchAgentCapstone:
     - Observability (logging, tracing)
     """
     
-    def __init__(self):
+    def __init__(self, observability_plugin=None):
         self.app_name = "trip_planner_research"
         self.session_service = InMemorySessionService()
         self.memory_service = InMemoryMemoryService()
+        self.observability_plugin = observability_plugin  # Store plugin
         self.weather_api = WeatherAPI()
         self.maps = MapsHelper()
         
-        # Check if model supports function calling
-        model_name = Config.MODEL_NAME.lower()
-        supports_tools = not any(x in model_name for x in ['lite', '8b'])
-        
-        # Create instruction based on tool support
-        if supports_tools:
-            instruction = f"""You are a travel research specialist.
+        # gemini-2.5-flash-lite DOES support tools! (confirmed in Day 2a notebook)
+        instruction = f"""You are a travel research specialist with access to real-time information.
 
-Your mission: Research destinations and provide comprehensive travel information.
+Your mission: Research destinations and provide comprehensive travel information using the tools available to you.
 
-**Available Tools:**
-1. google_search - Use this to find:
+**IMPORTANT - Use Your Tools:**
+1. **google_search** - ALWAYS use this to find current information about:
    - Best attractions and landmarks
    - Local activities and experiences  
-   - Cultural events and festivals
-   - Travel tips and recommendations
-   - Safety information
-   - Transportation options
+   - Cultural events and festivals during the travel dates
+   - Travel tips and local recommendations
+   - Safety information and travel advisories
+   - Transportation options and costs
+   - Food recommendations and popular restaurants
+   - Hidden gems and off-the-beaten-path spots
 
-2. get_weather_info - Use this to get:
-   - Weather forecasts and seasonal information
-   - Best time to visit
-   - What to pack
+2. **get_weather_info** - Use this to get accurate weather data for the exact travel dates
 
 **Research Process:**
 1. Search for "[destination] best attractions and things to do"
@@ -88,152 +83,36 @@ Be specific with dates, prices, and practical details.
 
 Current date: {datetime.now().strftime("%Y-%m-%d")}
 """
-        else:
-            instruction = f"""You are an ELITE travel research specialist with encyclopedic knowledge and CRITICAL ANALYSIS skills.
-
-MISSION: Deliver research SO DETAILED and THOUGHTFUL that the user feels confident planning their trip.
-
-**ENHANCED RESEARCH CAPABILITIES:**
-
-🌐 **GOOGLE MAPS INTEGRATION**: When recommending places, think about:
-• Exact locations and neighborhoods
-• How to get there (specific metro lines, walking distances)
-• What's nearby (cluster recommendations geographically)
-
-🌦️ **REAL WEATHER DATA**: You have access to actual weather forecasts (or seasonal data as fallback)
-• Use this to inform packing lists
-• Suggest indoor alternatives for rainy days
-• Time outdoor activities for best weather
-
-🗺️ **MULTI-CITY INTELLIGENCE** (if applicable):
-• Research EACH city comprehensively
-• Consider inter-city transit (Shinkansen timing, costs, booking needs)
-• Identify what makes each city unique (don't repeat same activities)
-• Suggest optimal city order based on geography and logic
-
-═══ CRITICAL ANALYSIS FRAMEWORK ═══
-
-🎯 USER PROFILE DEEP-DIVE:
-• Budget Reality Check: Analyze budget level - what can/can't they afford?
-• Interest Matching: How do attractions align with their interests? Be HONEST
-• Pace Assessment: Their pace preference = how many activities/day is realistic?
-• Date Intelligence: Check their dates - weather? Peak season? Festivals? Closures?
-• Dietary Constraints: Where can they ACTUALLY eat well given restrictions?
-
-🗺️ GEOGRAPHIC & MAP INTELLIGENCE:
-• NEIGHBORHOOD ANALYSIS: Which areas cluster together? Where to base?
-• PROXIMITY MAPPING: Which attractions are walkable from each other?
-• TRANSPORTATION WEB: Metro lines, bus routes, walking times (BE SPECIFIC!)
-• EFFICIENT ROUTING: Plan logical daily flows (minimize backtracking!)
-• HIDDEN GEMS: What's near popular spots that tourists miss?
-
-🌦️ WEATHER & SEASONAL MASTERY:
-• EXACT CONDITIONS for their dates: Temp ranges, rain probability, humidity
-• WEATHER IMPACT: Which activities work? Which need indoor backup?
-• SEASONAL EVENTS: Cherry blossoms? Festivals? Peak foliage? (with DATES!)
-• PACKING SPECIFICS: Not "jacket" - "Lightweight waterproof jacket with hood"
-• TIMING STRATEGY: Best hours for outdoor sites (avoid crowds & heat)
-• MICROSEASONS: Early April Tokyo ≠ Late April - BE PRECISE!
-
-4. **DEEP LOCAL KNOWLEDGE**:
-   - Hidden gems (not just tourist traps)
-   - Local favorites vs tourist spots
-   - Neighborhood character & safety
-   - Cultural nuances & etiquette
-   - Money-saving tips
-   - Common tourist mistakes to avoid
-
-5. **CRITICAL EVALUATION**:
-   - Is this attraction worth the time/cost?
-   - Will it be crowded on their dates?
-   - Are there better alternatives?
-   - What's overrated? What's underrated?
-   - Booking requirements (reserve ahead?)
-
-**RESEARCH DEPTH REQUIREMENTS:**
-
-Must include AT LEAST:
-- 15-20 specific attractions (with pros/cons for each)
-- 10+ restaurant recommendations (with cuisine types, prices, locations)
-- 5+ neighborhood profiles (character, best for, how to get there)
-- Detailed weather forecast for exact travel dates
-- 8+ cultural tips and local customs
-- Transportation: exact routes, costs, card types
-- Safety tips specific to the area
-- Budget breakdown by category
-- 5+ "insider tips" from locals
-- Day/night activity options
-- Backup plans for bad weather
-
-**OUTPUT STRUCTURE:**
-
-## DESTINATION OVERVIEW
-[Compelling summary highlighting what makes it special]
-
-## WEATHER & SEASONAL CONTEXT
-[Detailed weather for their dates + seasonal considerations]
-
-## GEOGRAPHIC LAYOUT
-[Key neighborhoods, how to navigate, where to stay]
-
-## TOP EXPERIENCES (Categorized & Rated)
-**Must-See (10/10)**: [With specific why]
-**Highly Recommended (8-9/10)**: [...]
-**Worth Considering (6-7/10)**: [...]
-**Skip Unless**: [Be honest about overrated spots]
-
-## DINING GUIDE
-[By cuisine type, price range, location - BE SPECIFIC]
-
-## PRACTICAL LOGISTICS
-[Transport passes, opening hours, booking tips]
-
-## CULTURAL INTELLIGENCE
-[Customs, etiquette, local insights]
-
-## BUDGET REALITY CHECK
-[Real costs with examples]
-
-## CRITICAL INSIGHTS
-[What tourists get wrong, insider knowledge]
-
-**QUALITY STANDARDS:**
-- Think critically: "Is this really the best use of their time?"
-- Be specific: Names, addresses, prices, exact times
-- Consider geography: Group nearby attractions
-- Check seasons: What's actually good during their visit?
-- Prioritize: Help them choose, don't just list everything
-- Be honest: Call out tourist traps
-- Add alternatives: "If X is crowded, try Y instead"
-
-Current date: {datetime.now().strftime("%Y-%m-%d")}
-"""
         
-        # For gemini-2.5-flash-lite and other lite models, don't use tools
-        # They don't support function calling well and work better with knowledge-based approach
-        console.print(f"[yellow]⚠ Using knowledge-based approach (no tools) for model: {model_name}[/yellow]")
+        console.print(f"[green]✅ Research Agent using google_search tool for model: {Config.MODEL_NAME}[/green]")
         
-        # Create ADK Agent WITHOUT TOOLS
+        # Create ADK Agent WITH TOOLS
         self.agent = Agent(
             name="research_agent",
-            model=create_gemini_model(),  # Using model with retry configuration
+            model=create_gemini_model(),
             description=(
-                "Expert travel researcher who finds attractions, "
-                "activities, weather info, and travel tips for destinations."
+                "Expert travel researcher who uses google_search to find current "
+                "information about destinations, attractions, and travel tips."
             ),
-            instruction=instruction
-            # NO TOOLS - using model's internal knowledge
+            instruction=instruction,
+            tools=[google_search]  # ✅ gemini-2.5-flash-lite supports this!
         )
         
         # Create runner with sessions
+        # Register observability plugin if provided
+        plugins = []
+        if self.observability_plugin:
+            plugins.append(self.observability_plugin)
+        
         self.runner = Runner(
             agent=self.agent,
             app_name=self.app_name,
             session_service=self.session_service,
-            memory_service=self.memory_service
+            memory_service=self.memory_service,
+            plugins=plugins  # ✅ Plugin registered - auto-tracks all agent/tool calls!
         )
         
-        console.print("[green]✅ Research Agent initialized (knowledge-based)![/green]")
+        console.print("[green]✅ Research Agent initialized with google_search tool![/green]")
     
     async def research(self, trip_input: TripInput) -> ResearchData:
         """
@@ -266,17 +145,31 @@ Current date: {datetime.now().strftime("%Y-%m-%d")}
         
         console.print("[yellow]Agent is researching... (this may take 30-60 seconds)[/yellow]")
         
-        # Collect response
+        # Collect response and track tool usage
         response_text = ""
+        tool_calls_made = []
         async for event in self.runner.run_async(
             user_id=user_id,
             session_id=session_id,
             new_message=content
         ):
-            # Since we're using knowledge-based approach (no tools), just get the final response
+            # Track tool calls using get_function_calls() method
+            if event.get_function_calls():
+                for fc in event.get_function_calls():
+                    tool_name = fc.name
+                    tool_calls_made.append(tool_name)
+                    console.print(f"  [dim]🔧 Using tool: {tool_name}[/dim]")
+            
+            # Get final response
             if event.is_final_response():
-                response_text = event.content.parts[0].text
+                if event.content and event.content.parts:
+                    response_text = event.content.parts[0].text
                 break
+        
+        if tool_calls_made:
+            console.print(f"[green]✅ Research used {len(tool_calls_made)} tool call(s): {', '.join(set(tool_calls_made))}[/green]")
+        else:
+            console.print("[yellow]⚠️  No tools were called (model used knowledge only)[/yellow]")
         
         console.print("[green]✅ Research complete![/green]")
         
@@ -358,9 +251,15 @@ Please provide:
 
 {"Note: Reference files from friends' trips are provided above. Use these as inspiration and to understand what worked well for them." if reference_context else ""}
 
-**Important**: The weather forecast is already provided above. Use it to inform your recommendations (e.g., suggest indoor activities for rainy days, mention cherry blossom timing if relevant, advise on clothing).
+**CRITICAL**: You MUST use the google_search tool to find current information. 
+Examples of searches you should make:
+- "best things to do in {trip_input.destination}"
+- "top restaurants in {trip_input.destination}"
+- "{trip_input.destination} travel tips 2025"
+- "{trip_input.destination} cultural customs"
+- "{trip_input.destination} transportation guide"
 
-Use google_search to find current, accurate information.
+Make multiple searches to gather comprehensive information!
 """
         return query
     

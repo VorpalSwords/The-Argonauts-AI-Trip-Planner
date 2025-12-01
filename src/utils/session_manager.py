@@ -22,7 +22,7 @@ class PersistentSessionManager:
     
     def __init__(self, storage_dir: str = ".sessions"):
         self.storage_dir = Path(storage_dir)
-        self.storage_dir.mkdir(exist_ok=True)
+        self.storage_dir.mkdir(parents=True, exist_ok=True)
         
         self.in_memory_service = InMemorySessionService()
         self.memory_service = InMemoryMemoryService()
@@ -39,7 +39,7 @@ class PersistentSessionManager:
         with open(session_file, 'w') as f:
             json.dump(data, f, indent=2)
         
-        console.print(f"[dim]💾 Session saved: {session_id[:16]}...[/dim]")
+        console.print(f"\n[green]💾 Session saved: {session_file}[/green]")
     
     def load_session(self, session_id: str) -> Optional[Dict[str, Any]]:
         """Load session data from disk"""

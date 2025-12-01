@@ -21,7 +21,11 @@ class ObservabilityTracker:
     """
     
     def __init__(self, session_id: str):
-        self.session_id = session_id
+        # Ensure session_id has "session_" prefix for clarity
+        if not session_id.startswith("session_"):
+            self.session_id = f"session_{session_id}"
+        else:
+            self.session_id = session_id
         self.metrics = {
             "session_id": session_id,
             "start_time": datetime.now().isoformat(),
@@ -50,9 +54,11 @@ class ObservabilityTracker:
         agent_name: str,
         status: str,
         duration: Optional[float] = None,
-        details: Optional[str] = None
+        details: Optional[str] = None,
+        summary: Optional[str] = None,
+        iteration: Optional[int] = None
     ):
-        """Log agent execution"""
+        """Log agent execution with enhanced details"""
         entry = {
             "agent": agent_name,
             "status": status,
@@ -62,20 +68,34 @@ class ObservabilityTracker:
             entry["duration"] = f"{duration:.2f}s"
         if details:
             entry["details"] = details
+        if summary:
+            entry["summary"] = summary
+        if iteration:
+            entry["iteration"] = iteration
         
         self.metrics["agents_executed"].append(entry)
         
         # Display
         status_emoji = {"started": "▶️", "completed": "✅", "failed": "❌"}.get(status, "ℹ️")
         duration_str = f" ({duration:.2f}s)" if duration else ""
-        console.print(f"[cyan]{status_emoji} {agent_name}: {status}{duration_str}[/cyan]")
+        iteration_str = f" [iteration {iteration}]" if iteration else ""
+        console.print(f"[cyan]{status_emoji} {agent_name}: {status}{duration_str}{iteration_str}[/cyan]")
+        if summary and status == "completed":
+            console.print(f"[dim]  → {summary}[/dim]")
     
-    def log_tool_call(self, tool_name: str, status: str, details: Optional[str] = None):
-        """Log tool usage"""
+    def log_tool_call(
+        self, 
+        tool_name: str, 
+        status: str, 
+        details: Optional[str] = None,
+        tool_type: Optional[str] = None
+    ):
+        """Log tool usage with type (built-in, custom, MCP, file)"""
         entry = {
             "tool": tool_name,
             "status": status,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "type": tool_type or "unknown"
         }
         if details:
             entry["details"] = details
@@ -83,10 +103,18 @@ class ObservabilityTracker:
         self.metrics["tool_calls"].append(entry)
         
         # Display
+        type_icon = {
+            "built-in": "🔧",
+            "custom": "⚙️",
+            "mcp": "🔌",
+            "file": "📁",
+            "api": "🌐"
+        }.get(tool_type, "🔧")
+        
         if status == "success":
-            console.print(f"  [dim]🔧 {tool_name}: ✅[/dim]")
+            console.print(f"  [dim]{type_icon} {tool_name}: ✅ ({tool_type})[/dim]")
         elif status == "failed":
-            console.print(f"  [yellow]🔧 {tool_name}: ⚠️  {details}[/yellow]")
+            console.print(f"  [yellow]{type_icon} {tool_name}: ⚠️  {details}[/yellow]")
     
     def log_error(self, error: str, context: Optional[str] = None):
         """Log an error"""
@@ -118,9 +146,16 @@ class ObservabilityTracker:
         table.add_column("Metric", style="cyan")
         table.add_column("Value", style="green")
         
+        # Count unique agents (not individual executions)
+        unique_agents = set()
+        for entry in self.metrics["agents_executed"]:
+            if entry["status"] == "completed":
+                unique_agents.add(entry["agent"])
+        
         # Add metrics
         table.add_row("Session ID", self.session_id[:16] + "...")
-        table.add_row("Agents Executed", str(len(self.metrics["agents_executed"])))
+        table.add_row("Unique Agents", str(len(unique_agents)))
+        table.add_row("Total Executions", str(len([e for e in self.metrics["agents_executed"] if e["status"] == "completed"])))
         table.add_row("Tool Calls", str(len(self.metrics["tool_calls"])))
         table.add_row("Errors", str(len(self.metrics["errors"])))
         table.add_row("Warnings", str(len(self.metrics["warnings"])))
@@ -135,7 +170,7 @@ class ObservabilityTracker:
     def save_metrics(self, output_dir: str = "logs"):
         """Save metrics to file"""
         log_dir = Path(output_dir)
-        log_dir.mkdir(exist_ok=True)
+        log_dir.mkdir(parents=True, exist_ok=True)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         log_file = log_dir / f"metrics_{timestamp}.json"
@@ -145,7 +180,7 @@ class ObservabilityTracker:
         with open(log_file, 'w') as f:
             json.dump(self.metrics, f, indent=2)
         
-        console.print(f"[dim]📊 Metrics saved to: {log_file}[/dim]")
+        console.print(f"\n[green]📊 Metrics saved to: {log_file}[/green]")
 
 
 class PerformanceMonitor:
