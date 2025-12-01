@@ -13,13 +13,19 @@ import asyncio
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from models.trip_models import TripInput, TripDates, TripPreferences
-from agents.research_agent_capstone import ResearchAgentCapstone
+from agents.orchestrator_capstone import OrchestratorAgentCapstone
 from tools.itinerary_formatter import ItineraryFormatter
 from utils.error_handler import InvalidInputError
 
 
 class TestAgentWorkflows:
     """Test agent execution workflows"""
+    
+    @pytest.mark.skip(reason="Requires API key and long execution time")
+    def test_orchestrator_initialization(self):
+        """Test orchestrator can be initialized"""
+        orchestrator = OrchestratorAgentCapstone()
+        assert orchestrator is not None
     
     def test_research_agent_initialization(self):
         """Test research agent can execute"""

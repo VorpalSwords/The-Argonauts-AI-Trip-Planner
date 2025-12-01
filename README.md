@@ -87,6 +87,12 @@ MAX_REVIEW_ITERATIONS=3
 ENABLE_GOOGLE_MAPS_LINKS=true  # Adds Maps links to output
 ```
 
+**5. Run tests:**
+
+```bash
+python3 -m pytest tests/ -v
+```
+
 **Weather API setup (optional but recommended):**
 1. Go to https://openweathermap.org/api
 2. Sign up for free account
